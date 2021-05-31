@@ -56,6 +56,7 @@ public class User implements Serializable {
 @Column(unique = true)
    private String email;
    private String password;
+   @Column(unique = true)
    private String telephone;
    private String adresse;
    private String fonction;
