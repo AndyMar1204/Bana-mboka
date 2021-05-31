@@ -4,6 +4,8 @@ import com.andy.bana_mboka.model.User;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -17,6 +19,7 @@ public class UserForm {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
     public static final String CONFIRM = "confirm";
+    public static final String TELEPHONE = "telephone";
 
     private Map<String, String> erreur = new HashMap();
 
@@ -27,8 +30,9 @@ public class UserForm {
     public void addError(String key, String value) {
         erreur.put(key, value);
     }
-    public Map<String,String> identifierGetter(HttpServletRequest req) {
-        Map <String,String> identifier = new HashMap();
+
+    public Map<String, String> identifierGetter(HttpServletRequest req) {
+        Map<String, String> identifier = new HashMap();
         String email = valueGetter(req, EMAIL);
         String password = valueGetter(req, PASSWORD);
         try {
@@ -41,12 +45,14 @@ public class UserForm {
         identifier.put(PASSWORD, password);
         return identifier;
     }
+
     public User userGetter(HttpServletRequest req) {
         User user = new User();
         String username = valueGetter(req, USERNAME);
         String email = valueGetter(req, EMAIL);
         String password = valueGetter(req, PASSWORD);
         String confirm = valueGetter(req, CONFIRM);
+        String telephone = valueGetter(req,TELEPHONE);
         try {
             validationUsername(username);
             user.setUsername(username);
@@ -56,7 +62,7 @@ public class UserForm {
         try {
             validationEmail(email);
             user.setEmail(email);
-        } catch (FormException  f) {
+        } catch (FormException f) {
             addError(EMAIL, f.getMessage());
         }
         try {
@@ -65,6 +71,12 @@ public class UserForm {
             user.setPassword(password);
         } catch (FormException f) {
             addError(PASSWORD, f.getMessage());
+        }
+        try {
+            validationPhone(telephone);
+            user.setTelephone(telephone);
+        } catch (FormException ex) {
+            addError(TELEPHONE,ex.getMessage());
         }
         return user;
     }
@@ -107,12 +119,24 @@ public class UserForm {
         } else {
             throw new FormException("Merci de saisir une adresse mail.");
         }
-    } 
-    static String passwordHasher(String password){
+    }
+
+    static void validationPhone(String phone) throws FormException {
+        if (phone != null && phone.trim().length() != 0) {
+            if (!phone.matches("\\d{9}")) {
+                throw new FormException("Merci de saisir un numero  valide.");
+            }
+        }else {
+            throw new FormException("Merci de saisir une numero mail.");
+        }
+    }
+
+    static String passwordHasher(String password) {
         if (password != null && password.trim().length() != 0) {
-           String sha256hex = DigestUtils.sha256Hex(password);
-           return sha256hex;
-        }else
+            String sha256hex = DigestUtils.sha256Hex(password);
+            return sha256hex;
+        } else {
             return null;
+        }
     }
 }
